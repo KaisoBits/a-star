@@ -5,10 +5,12 @@ using AStar;
 
 Vector2i atlasSize = new(49, 22);
 Vector2i gridSize = new(32, 32);
+float zoom = 0.5f;
+
 Texture tex = new("Resources/tilemap.png");
 
 RenderWindow window = new(new VideoMode(1600, 1280), "A*");
-View view = new(new Vector2f(), new Vector2f(1600, 1280));
+View view = new(new Vector2f(), new Vector2f(1600, 1280) * zoom);
 window.SetView(view);
 
 Tilemap tilemap = new(gridSize);
@@ -30,7 +32,6 @@ window.Closed += (s, e) => window.Close();
 
 bool isMovingCam = false;
 Vector2f lastPos = new();
-float zoom = 1.0f;
 
 window.Resized += (s, e) => view.Size = new Vector2f(e.Width, e.Height) * zoom;
 
@@ -38,7 +39,7 @@ window.MouseWheelScrolled += (s, e) =>
 {
     float multiplier = Math.Abs(e.Delta);
     float ratio = e.Delta < 0 ? 1.25f * multiplier : 0.8f / multiplier;
-    zoom = Math.Clamp(zoom * ratio, 0.2f, 3.0f);
+    zoom = Math.Clamp(zoom * ratio, 0.05f, 1.0f);
     view.Size = (Vector2f)window.Size * zoom;
 };
 
@@ -79,23 +80,15 @@ window.KeyPressed += (s, e) =>
         resolver.Tick();
 
     if (e.Code == Keyboard.Key.R)
-        tilemap = new(gridSize);
+    {
 
-    if (e.Code == Keyboard.Key.PageDown)
-    {
-        view.Zoom(1.25f);
-        window.SetView(view);
     }
-    else if (e.Code == Keyboard.Key.PageUp)
-    {
-        view.Zoom(0.8f);
-        window.SetView(view);
-    }
+        tilemap = new(gridSize);
 };
 
 while (window.IsOpen)
 {
-    window.Clear(new Color(135, 206, 235));
+    window.Clear(new Color(34, 20, 20));
     window.DispatchEvents();
     window.SetView(view);
 
