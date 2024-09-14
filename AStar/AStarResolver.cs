@@ -38,7 +38,7 @@ public class AStarResolver
     }
 
     private int GetHeuristicCost(Vector2i position) =>
-        Math.Abs(position.X - Destination.X) + Math.Abs(position.Y - Destination.Y);
+        (position.X - Destination.X) * (position.X - Destination.X) + (position.Y - Destination.Y) * (position.Y - Destination.Y);
 
 
     public List<AStarNode> GetNeighbors(AStarNode parent)
