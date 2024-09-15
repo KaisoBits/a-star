@@ -6,7 +6,7 @@ namespace AStar;
 public class Renderer : Drawable
 {
     private readonly Tilemap _tilemap;
-    private readonly AStarResolver _resolver;
+    public AStarResolver Resolver { get; set; }
 
     private readonly VertexArray _vertexArray;
     private readonly Vector2i _textureTileSize;
@@ -24,7 +24,7 @@ public class Renderer : Drawable
     {
         _tileTexture = tileTexture;
         _tilemap = tilemap;
-        _resolver = resolver;
+        Resolver = resolver;
 
         _vertexArray = new VertexArray(PrimitiveType.Quads, 4);
         _textureTileSize = new Vector2i((int)_tileTexture.Size.X / atlasSize.X, (int)_tileTexture.Size.Y / atlasSize.Y);
@@ -48,17 +48,17 @@ public class Renderer : Drawable
             }
         }
 
-        if (_previousLastChecked != _resolver.LastChecked)
+        if (_previousLastChecked != Resolver.LastChecked)
         {
-            _previousLastChecked = _resolver.LastChecked;
+            _previousLastChecked = Resolver.LastChecked;
             _pathVertices.Clear();
 
-            AStarNode? curr = _resolver.LastChecked;
+            AStarNode? curr = Resolver.LastChecked;
             while (curr != null)
             {
                 Vector2f position = new Vector2f(curr.Position.X * _textureTileSize.X + _textureTileSize.X / 2.0f, curr.Position.Y * _textureTileSize.Y + _textureTileSize.Y / 2.0f) - (fullSize / 2.0f);
                 _pathVertices.Append(new Vertex(position, Color.Magenta));
-                curr = curr.ParentPosition.HasValue ? _resolver.ClosedList[curr.ParentPosition.Value] : null;
+                curr = curr.ParentPosition.HasValue ? Resolver.ClosedList[curr.ParentPosition.Value] : null;
             }
         }
 
@@ -75,13 +75,13 @@ public class Renderer : Drawable
         textureCoord = new Vector2f(textureCoord.X * _textureTileSize.X, textureCoord.Y * _textureTileSize.Y);
 
         Color overlayColor = Color.White;
-        if (_resolver.Origin == tile.Position)
+        if (Resolver.Origin == tile.Position)
             overlayColor = new Color(255, 150, 150);
-        else if (_resolver.Destination == tile.Position)
+        else if (Resolver.Destination == tile.Position)
             overlayColor = new Color(100, 100, 255);
-        else if (_resolver.OpenList.ContainsKey(tile.Position))
-            overlayColor = new Color(200, 200, 200);
-        else if (_resolver.ClosedList.ContainsKey(tile.Position))
+        else if (Resolver.OpenList.ContainsKey(tile.Position))
+            overlayColor = new Color(180, 180, 180);
+        else if (Resolver.ClosedList.ContainsKey(tile.Position))
             overlayColor = new Color(100, 100, 100);
 
         _vertexArray[0] = new Vertex(new Vector2f(_textureTileSize.X, 0), overlayColor, textureCoord + new Vector2f(_textureTileSize.X, 0));
@@ -91,5 +91,15 @@ public class Renderer : Drawable
         states.Texture = _tileTexture;
 
         target.Draw(_vertexArray, states);
+    }
+
+    public Tile? GetTileOnCoords(Vector2f coords)
+    {
+        Vector2f fullSize = new Vector2f(_textureTileSize.X * _tilemap.GridSize.X, _textureTileSize.Y * _tilemap.GridSize.Y);
+
+        Vector2f transformedCoords = coords + (fullSize / 2.0f);
+        Vector2i tileCoord = new Vector2i((int)transformedCoords.X / _textureTileSize.X, (int)transformedCoords.Y / _textureTileSize.Y);
+
+        return _tilemap.GetTileAt(tileCoord);
     }
 }

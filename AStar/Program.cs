@@ -18,11 +18,7 @@ Tilemap tilemap = new(gridSize);
 FileMapGenerator mapGenerator = new();
 mapGenerator.Generate(tilemap, "Resources/map.png");
 
-AStarResolverBuilder builder = AStarResolverBuilder.Create()
-    .WithOrigin(new(25, 12))
-    .WithDestination(new(2, 20));
- 
-AStarResolver resolver = builder.Build(tilemap);
+AStarResolver resolver = CreatePathfinding(new(25, 12), new(2, 20), tilemap);
 
 Renderer renderer = new(tilemap, resolver, tex, atlasSize);
 
@@ -79,11 +75,35 @@ window.KeyPressed += (s, e) =>
     if (e.Code == Keyboard.Key.Space)
         resolver.Tick();
 
+    if (e.Code == Keyboard.Key.Q)
+    {
+        Vector2f coords = window.MapPixelToCoords(Mouse.GetPosition(window));
+        Tile? tile = renderer.GetTileOnCoords(coords);
+        if (tile is { IsWalkable: true })
+        {
+            Vector2i destination = tile.Position;
+            resolver = CreatePathfinding(resolver.Origin, destination, tilemap);
+            renderer.Resolver = resolver;
+        }
+    }
+
+    if (e.Code == Keyboard.Key.E)
+    {
+        Vector2f coords = window.MapPixelToCoords(Mouse.GetPosition(window));
+        Tile? tile = renderer.GetTileOnCoords(coords);
+        if (tile is { IsWalkable: true })
+        {
+            Vector2i origin = tile.Position;
+            resolver = CreatePathfinding(origin, resolver.Destination, tilemap);
+            renderer.Resolver = resolver;
+        }
+    }
+
     if (e.Code == Keyboard.Key.R)
     {
-
+        resolver = CreatePathfinding(resolver.Origin, resolver.Destination, tilemap);
+        renderer.Resolver = resolver;
     }
-        tilemap = new(gridSize);
 };
 
 while (window.IsOpen)
@@ -95,4 +115,13 @@ while (window.IsOpen)
     window.Draw(renderer);
 
     window.Display();
+}
+
+AStarResolver CreatePathfinding(Vector2i originPos, Vector2i destinationPos, Tilemap tilemap)
+{
+    AStarResolverBuilder builder = AStarResolverBuilder.Create()
+        .WithOrigin(originPos)
+        .WithDestination(destinationPos);
+
+    return builder.Build(tilemap);
 }
