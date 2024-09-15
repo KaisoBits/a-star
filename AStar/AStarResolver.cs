@@ -25,8 +25,8 @@ public class AStarResolver
         Origin = origin;
         Destination = destination;
 
-        AStarNode startingNode = new() 
-        { 
+        AStarNode startingNode = new()
+        {
             Position = origin,
             GCost = 0,
             HCost = GetHeuristicCost(origin),
@@ -41,13 +41,16 @@ public class AStarResolver
         MathF.Sqrt((position.X - Destination.X) * (position.X - Destination.X)
         + (position.Y - Destination.Y) * (position.Y - Destination.Y));
 
-
     public List<AStarNode> GetNeighbors(AStarNode parent)
     {
         List<AStarNode> result = [];
 
         Tile? up = _map.GetTileAt(parent.Position + new Vector2i(0, -1));
+        Tile? upLeft = _map.GetTileAt(parent.Position + new Vector2i(-1, -1));
+        Tile? upRight = _map.GetTileAt(parent.Position + new Vector2i(1, -1));
         Tile? down = _map.GetTileAt(parent.Position + new Vector2i(0, 1));
+        Tile? downLeft = _map.GetTileAt(parent.Position + new Vector2i(-1, 1));
+        Tile? downRight = _map.GetTileAt(parent.Position + new Vector2i(1, 1));
         Tile? left = _map.GetTileAt(parent.Position + new Vector2i(-1, 0));
         Tile? right = _map.GetTileAt(parent.Position + new Vector2i(1, 0));
 
@@ -61,6 +64,26 @@ public class AStarResolver
                 ParentPosition = parent.Position
             });
         }
+        if (upLeft is { IsWalkable: true })
+        {
+            result.Add(new()
+            {
+                Position = upLeft.Position,
+                GCost = parent.GCost + upLeft.Cost * 1.41f,
+                HCost = GetHeuristicCost(upLeft.Position),
+                ParentPosition = parent.Position
+            });
+        }
+        if (upRight is { IsWalkable: true })
+        {
+            result.Add(new()
+            {
+                Position = upRight.Position,
+                GCost = parent.GCost + upRight.Cost * 1.41f,
+                HCost = GetHeuristicCost(upRight.Position),
+                ParentPosition = parent.Position
+            });
+        }
         if (down is { IsWalkable: true })
         {
             result.Add(new()
@@ -68,6 +91,26 @@ public class AStarResolver
                 Position = down.Position,
                 GCost = parent.GCost + down.Cost,
                 HCost = GetHeuristicCost(down.Position),
+                ParentPosition = parent.Position
+            });
+        }
+        if (downRight is { IsWalkable: true })
+        {
+            result.Add(new()
+            {
+                Position = downRight.Position,
+                GCost = parent.GCost + downRight.Cost * 1.41f,
+                HCost = GetHeuristicCost(downRight.Position),
+                ParentPosition = parent.Position
+            });
+        }
+        if (downLeft is { IsWalkable: true })
+        {
+            result.Add(new()
+            {
+                Position = downLeft.Position,
+                GCost = parent.GCost + downLeft.Cost * 1.41f,
+                HCost = GetHeuristicCost(downLeft.Position),
                 ParentPosition = parent.Position
             });
         }
@@ -116,9 +159,9 @@ public class AStarResolver
         }
 
         List<AStarNode> neighbors = GetNeighbors(cheapestNode);
-        foreach (AStarNode newNode in neighbors) 
+        foreach (AStarNode newNode in neighbors)
         {
-            if (!_closedList.ContainsKey(newNode.Position) && (!_openList.TryGetValue(newNode.Position, out AStarNode? existingNode) || 
+            if (!_closedList.ContainsKey(newNode.Position) && (!_openList.TryGetValue(newNode.Position, out AStarNode? existingNode) ||
                 existingNode.GCost > newNode.GCost))
             {
                 _openList[newNode.Position] = newNode;
