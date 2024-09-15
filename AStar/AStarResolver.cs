@@ -37,8 +37,9 @@ public class AStarResolver
         LastChecked = startingNode;
     }
 
-    private int GetHeuristicCost(Vector2i position) =>
-        (position.X - Destination.X) * (position.X - Destination.X) + (position.Y - Destination.Y) * (position.Y - Destination.Y);
+    private float GetHeuristicCost(Vector2i position) =>
+        MathF.Sqrt((position.X - Destination.X) * (position.X - Destination.X)
+        + (position.Y - Destination.Y) * (position.Y - Destination.Y));
 
 
     public List<AStarNode> GetNeighbors(AStarNode parent)
