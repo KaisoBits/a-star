@@ -16,9 +16,12 @@ public class Renderer : Drawable
 
     private readonly Vector2f[] _walkableTextures = [new(1, 0), new(2, 0), new(3, 0), new(4, 0)];
     private readonly Vector2f[] _nonWalkableTextures = [new(0, 1), new(1, 1), new(2, 1), new(3, 1), new(4, 1), new(5, 1), new(3, 2), new(4, 2)];
+    private readonly Vector2f[] _obstacleTextures = [new(2, 15)];
 
     private AStarNode? _previousLastChecked = null;
     private readonly VertexArray _pathVertices = new(PrimitiveType.LineStrip);
+
+    private readonly Clock _clock = new();
 
     public Renderer(Tilemap tilemap, AStarResolver resolver, Texture tileTexture, Vector2i atlasSize)
     {
@@ -68,18 +71,23 @@ public class Renderer : Drawable
     public void DrawTile(Tile tile, RenderTarget target, RenderStates states)
     {
         int posHash = Math.Abs(HashCode.Combine(tile.Position.X, tile.Position.Y));
-        Vector2f textureCoord = tile.IsWalkable ?
-            _walkableTextures[posHash % _walkableTextures.Length] :
-            _nonWalkableTextures[posHash % _nonWalkableTextures.Length];
+
+        Vector2f textureCoord = tile switch
+        {
+            { IsWalkable: true, Cost: <= 1 } => _walkableTextures[posHash % _walkableTextures.Length],
+            { IsWalkable: true, Cost: > 1 } => _obstacleTextures[posHash % _obstacleTextures.Length],
+            { IsWalkable: false } => _nonWalkableTextures[posHash % _nonWalkableTextures.Length],
+        };
+
+        if (tile.Position == Resolver.Origin)
+            textureCoord = new(27, 0);
+        else if (tile.Position == Resolver.Destination)
+            textureCoord = new(41, 4);
 
         textureCoord = new Vector2f(textureCoord.X * _textureTileSize.X, textureCoord.Y * _textureTileSize.Y);
 
         Color overlayColor = Color.White;
-        if (Resolver.Origin == tile.Position)
-            overlayColor = new Color(255, 150, 150);
-        else if (Resolver.Destination == tile.Position)
-            overlayColor = new Color(100, 100, 255);
-        else if (Resolver.OpenList.ContainsKey(tile.Position))
+        if (Resolver.OpenList.ContainsKey(tile.Position))
             overlayColor = new Color(180, 180, 180);
         else if (Resolver.ClosedList.ContainsKey(tile.Position))
             overlayColor = new Color(100, 100, 100);

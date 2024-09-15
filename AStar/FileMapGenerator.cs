@@ -3,7 +3,7 @@ using SFML.System;
 
 namespace AStar;
 
-public class FileMapGenerator
+public sealed class FileMapGenerator
 { 
     public void Generate(Tilemap tilemap, string filename)
     {
@@ -13,11 +13,16 @@ public class FileMapGenerator
         {
             for (int x = 0; x < image.Size.X; x++)
             {
-                if (image.GetPixel((uint)x, (uint)y) == Color.Black)
-                {
-                    Tile? tile = tilemap.GetTileAt(new Vector2i(x, y));
-                    if (tile != null) tile.IsWalkable = false;
-                }
+                Color pixelColor = image.GetPixel((uint)x, (uint)y);
+                if (pixelColor == Color.White)
+                    continue;
+
+                Tile? tile = tilemap.GetTileAt(new Vector2i(x, y));
+                if (tile == null)
+                    continue;
+
+                if (pixelColor == Color.Black) tile.IsWalkable = false;
+                if (pixelColor == Color.Red) tile.Cost = 7;
             }
         }
     }

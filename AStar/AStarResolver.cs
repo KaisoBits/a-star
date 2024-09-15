@@ -2,7 +2,7 @@
 
 namespace AStar;
 
-public class AStarResolver
+public sealed class AStarResolver
 {
     private readonly Tilemap _map;
 
