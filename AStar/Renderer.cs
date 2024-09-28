@@ -12,7 +12,6 @@ public class Renderer : Drawable
     private readonly Vector2i _textureTileSize;
 
     private readonly Texture _tileTexture;
-    private readonly Vector2i _atlasSize;
 
     private readonly Vector2f[] _walkableTextures = [new(1, 0), new(2, 0), new(3, 0), new(4, 0)];
     private readonly Vector2f[] _nonWalkableTextures = [new(0, 1), new(1, 1), new(2, 1), new(3, 1), new(4, 1), new(5, 1), new(3, 2), new(4, 2)];
@@ -20,8 +19,6 @@ public class Renderer : Drawable
 
     private AStarNode? _previousLastChecked = null;
     private readonly VertexArray _pathVertices = new(PrimitiveType.LineStrip);
-
-    private readonly Clock _clock = new();
 
     public Renderer(Tilemap tilemap, AStarResolver resolver, Texture tileTexture, Vector2i atlasSize)
     {
