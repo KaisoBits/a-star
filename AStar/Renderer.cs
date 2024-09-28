@@ -51,7 +51,7 @@ public class Renderer : Drawable
             }
         }
 
-        if (_previousLastChecked != Resolver.LastChecked)
+        if (!_previousLastChecked.HasValue || _previousLastChecked.Value.Position != Resolver.LastChecked.Position)
         {
             _previousLastChecked = Resolver.LastChecked;
             _pathVertices.Clear();
@@ -59,9 +59,11 @@ public class Renderer : Drawable
             AStarNode? curr = Resolver.LastChecked;
             while (curr != null)
             {
-                Vector2f position = new Vector2f(curr.Position.X * _textureTileSize.X + _textureTileSize.X / 2.0f, curr.Position.Y * _textureTileSize.Y + _textureTileSize.Y / 2.0f) - (fullSize / 2.0f);
+                Vector2f position = new Vector2f(
+                    curr.Value.Position.X * _textureTileSize.X + _textureTileSize.X / 2.0f, 
+                    curr.Value.Position.Y * _textureTileSize.Y + _textureTileSize.Y / 2.0f) - (fullSize / 2.0f);
                 _pathVertices.Append(new Vertex(position, Color.Magenta));
-                curr = curr.ParentPosition.HasValue ? Resolver.ClosedList[curr.ParentPosition.Value] : null;
+                curr = curr.Value.ParentPosition.HasValue ? Resolver.ClosedList[curr.Value.ParentPosition.Value] : null;
             }
         }
 

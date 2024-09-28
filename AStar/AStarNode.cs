@@ -2,7 +2,7 @@
 
 namespace AStar;
 
-public class AStarNode
+public readonly struct AStarNode
 {
     public required Vector2i Position { get; init; }
     public required float GCost { get; init; }

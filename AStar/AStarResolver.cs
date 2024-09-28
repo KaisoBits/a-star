@@ -152,8 +152,8 @@ public sealed class AStarResolver
             AStarNode? curr = cheapestNode;
             while (curr != null)
             {
-                _solvedPath.Insert(0, curr);
-                curr = curr.ParentPosition.HasValue ? _closedList[curr.ParentPosition.Value] : null;
+                _solvedPath.Insert(0, curr.Value);
+                curr = curr.Value.ParentPosition.HasValue ? _closedList[curr.Value.ParentPosition.Value] : null;
             }
             return;
         }
@@ -161,7 +161,7 @@ public sealed class AStarResolver
         List<AStarNode> neighbors = GetNeighbors(cheapestNode);
         foreach (AStarNode newNode in neighbors)
         {
-            if (!_closedList.ContainsKey(newNode.Position) && (!_openList.TryGetValue(newNode.Position, out AStarNode? existingNode) ||
+            if (!_closedList.ContainsKey(newNode.Position) && (!_openList.TryGetValue(newNode.Position, out AStarNode existingNode) ||
                 existingNode.GCost > newNode.GCost))
             {
                 _openList[newNode.Position] = newNode;
